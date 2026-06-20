@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кроссворд: Фармакология</title>
+    <style>
+        :root {
+            --primary: #2a9d8f;
+            --primary-dark: #21867a;
+            --bg: #f8f9fa;
+            --correct: #a8e6cf;
+            --incorrect: #ff8b94;
+            --text: #264653;
+        }
+        
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        h1 { text-align: center; color: var(--primary); margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 25px; }
+        
+        .crossword-wrapper {
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+        
+        .crossword-grid {
+            display: grid;
+            gap: 3px;
+        }
+        
+        .cell {
+            width: 40px;
+            height: 40px;
+            position: relative;
+        }
+        
+        .cell input {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            text-transform: uppercase;
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            background: white;
+            color: var(--text);
+            transition: all 0.2s;
+            padding: 0;
+        }
+        
+        .cell input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.2);
+        }
+        
+        .cell input.correct { background: var(--correct); border-color: #2ecc71; }
+        .cell input.incorrect { background: var(--incorrect); border-color: #e74c3c; }
+        
+        .cell.black { background: #e0e0e0; border-radius: 6px; }
+        
+        .cell .number {
+            position: absolute;
+            top: 1px;
+            left: 3px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #555;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .clues {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .clues-column {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .clues-column h3 {
+            margin: 0 0 10px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 8px;
+        }
+        
+        .clue {
+            margin: 8px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            border-left: 3px solid var(--primary);
+            font-size: 14px;
+        }
+        
+        .buttons { text-align: center; margin-top: 25px; }
+        
+        button {
+            padding: 12px 28px;
+            font-size: 15px;
+            margin: 0 8px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .check-btn { background: var(--primary); color: white; }
+        .check-btn:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .reset-btn { background: #6c757d; color: white; }
+        .reset-btn:hover { background: #5a6268; transform: translateY(-2px); }
+        
+        .result {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            min-height: 24px;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        .result.success { background: #d4edda; color: #155724; }
+        .result.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💊 Кроссворд: Фармакология</h1>
+        <p class="subtitle">Введите буквы. Используйте стрелки для навигации.</p>
+        
+        <div class="crossword-wrapper">
+            <div class="crossword-grid" id="crosswordGrid"></div>
+        </div>
+        
+        <div class="clues">
+            <div class="clues-column">
+                <h3>По горизонтали</h3>
+                <div class="clue"><strong>1.</strong> Группа препаратов, убивающих бактерии или подавляющих их рост (10 букв)</div>
+            </div>
+            <div class="clues-column">
+                <h3>По вертикали</h3>
+                <div class="clue"><strong>2.</strong> Популярное обезболивающее и жаропонижающее средство (8 букв)</div>
+                <div class="clue"><strong>3.</strong> Нестероидное противовоспалительное средство, полученное из коры ивы (7 букв)</div>
+                <div class="clue"><strong>4.</strong> Белковый гормон поджелудочной железы, применяемый при сахарном диабете (7 букв)</div>
+                <div class="clue"><strong>5.</strong> Седативное средство на основе ментола и изовалериановой кислоты (7 букв)</div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button class="check-btn" onclick="checkAnswers()">✓ Проверить</button>
+            <button class="reset-btn" onclick="resetCrossword()">↺ Очистить</button>
+        </div>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // ✅ ПРОВЕРЕННАЯ СЕТКА: все пересечения математически корректны
+        // АНТИБИОТИК (горизонтально, строка 5, столбцы 0-9): А-Н-Т-И-Б-И-О-Т-И-К
+        // АНАЛЬГИН (вертикально, столбец 0, строки 5-12): А-Н-А-Л-Ь-Г-И-Н
+        //   Пересечение: строка 5, столбец 0 → А ✓
+        // АСПИРИН (вертикально, столбец 3, строки 2-8): А-С-П-И-Р-И-Н
+        //   Пересечение: строка 5, столбец 3 → И ✓
+        // ИНСУЛИН (вертикально, столбец 5, строки 5-11): И-Н-С-У-Л-И-Н
+        //   Пересечение: строка 5, столбец 5 → И ✓
+        // ВАЛИДОЛ (вертикально, столбец 8, строки 2-8): В-А-Л-И-Д-О-Л
+        //   Пересечение: строка 5, столбец 8 → И ✓
+        
+        const crosswordData = {
+            words: [
+                { id: 1, word: "АНТИБИОТИК", dir: "h", r: 5, c: 0 },
+                { id: 2, word: "АНАЛЬГИН",   dir: "v", r: 5, c: 0 },
+                { id: 3, word: "АСПИРИН",    dir: "v", r: 2, c: 3 },
+                { id: 4, word: "ИНСУЛИН",    dir: "v", r: 5, c: 5 },
+                { id: 5, word: "ВАЛИДОЛ",    dir: "v", r: 2, c: 8 }
+            ],
+            rows: 13,
+            cols: 10
+        };
+
+        function createGrid() {
+            const grid = document.getElementById('crosswordGrid');
+            grid.style.gridTemplateColumns = `repeat(${crosswordData.cols}, 40px)`;
+            
+            const matrix = Array.from({ length: crosswordData.rows }, () => Array(crosswordData.cols).fill(null));
+            
+            crosswordData.words.forEach(w => {
+                for (let i = 0; i < w.word.length; i++) {
+                    const r = w.dir === "h" ? w.r : w.r + i;
+                    const c = w.dir === "h" ? w.c + i : w.c;
+                    if (!matrix[r][c]) matrix[r][c] = { nums: [], letter: w.word[i] };
+                    if (i === 0 && !matrix[r][c].nums.includes(w.id)) matrix[r][c].nums.push(w.id);
+                }
+            });
+            
+            for (let r = 0; r < crosswordData.rows; r++) {
+                for (let c = 0; c < crosswordData.cols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    const data = matrix[r][c];
+                    
+                    if (data) {
+                        const inp = document.createElement('input');
+                        inp.type = 'text';
+                        inp.maxLength = 1;
+                        inp.dataset.r = r;
+                        inp.dataset.c = c;
+                        inp.dataset.ans = data.letter;
+                        inp.addEventListener('input', onInput);
+                        inp.addEventListener('keydown', onKey);
+                        cell.appendChild(inp);
+                        
+                        if (data.nums.length) {
+                            const num = document.createElement('div');
+                            num.className = 'number';
+                            num.textContent = data.nums[0];
+                            cell.appendChild(num);
+                        }
+                    } else {
+                        cell.classList.add('black');
+                    }
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function onInput(e) {
+            e.target.value = e.target.value.toUpperCase();
+            if (e.target.value) moveToNext(e.target.dataset.r, e.target.dataset.c, 1);
+        }
+
+        function onKey(e) {
+            const r = +e.target.dataset.r, c = +e.target.dataset.c;
+            if (e.key === 'Backspace' && !e.target.value) {
+                e.preventDefault();
+                moveToNext(r, c, -1);
+            } else if (e.key.startsWith('Arrow')) {
+                e.preventDefault();
+                const dr = { ArrowUp: -1, ArrowDown: 1, ArrowLeft: 0, ArrowRight: 0 }[e.key];
+                const dc = { ArrowUp: 0, ArrowDown: 0, ArrowLeft: -1, ArrowRight: 1 }[e.key];
+                let nr = r + dr, nc = c + dc;
+                while (nr >= 0 && nr < crosswordData.rows && nc >= 0 && nc < crosswordData.cols) {
+                    const next = document.querySelector(`input[data-r="${nr}"][data-c="${nc}"]`);
+                    if (next) { next.focus(); return; }
+                    nr += dr; nc += dc;
+                }
+            }
+        }
+
+        function moveToNext(r, c, step) {
+            const inputs = Array.from(document.querySelectorAll('.cell input'));
+            const idx = inputs.findIndex(i => +i.dataset.r == r && +i.dataset.c == c);
+            const nextIdx = idx + step;
+            if (nextIdx >= 0 && nextIdx < inputs.length) inputs[nextIdx].focus();
+        }
+
+        function checkAnswers() {
+            const inputs = document.querySelectorAll('.cell input');
+            let correctCount = 0, total = inputs.length, allFilled = true;
+            
+            inputs.forEach(inp => {
+                const val = inp.value.toUpperCase();
+                if (!val) { allFilled = false; inp.classList.remove('correct', 'incorrect'); return; }
+                if (val === inp.dataset.ans) { inp.classList.add('correct'); inp.classList.remove('incorrect'); correctCount++; }
+                else { inp.classList.add('incorrect'); inp.classList.remove('correct'); }
+            });
+            
+            const res = document.getElementById('result');
+            if (allFilled && correctCount === total) {
+                res.textContent = '🎉 Отлично! Все слова разгаданы верно!';
+                res.className = 'result success';
+            } else {
+                res.textContent = `✅ Верно: ${correctCount} из ${total} клеток`;
+                res.className = 'result error';
+            }
+        }
+
+        function resetCrossword() {
+            document.querySelectorAll('.cell input').forEach(i => { i.value = ''; i.classList.remove('correct', 'incorrect'); });
+            document.getElementById('result').textContent = '';
+        }
+
+        createGrid();
+    </script>
+</body>
+</html>
