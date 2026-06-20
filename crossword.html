@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кроссворд: Анатомия человека</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+        
+        .crossword-grid {
+            display: grid;
+            gap: 2px;
+            margin: 30px auto;
+            justify-content: center;
+        }
+        
+        .cell {
+            width: 40px;
+            height: 40px;
+            position: relative;
+        }
+        
+        .cell input {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            background: white;
+        }
+        
+        .cell input:focus {
+            outline: none;
+            border-color: #764ba2;
+            background: #f0f0ff;
+        }
+        
+        .cell input.correct {
+            background: #90EE90;
+            border-color: #228B22;
+        }
+        
+        .cell input.incorrect {
+            background: #FFB6C1;
+            border-color: #DC143C;
+        }
+        
+        .cell.black {
+            background: #333;
+            border-radius: 5px;
+        }
+        
+        .cell .number {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #333;
+            z-index: 1;
+        }
+        
+        .clues {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .clues-column {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .clues-column h3 {
+            color: #667eea;
+            margin-top: 0;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .clue {
+            margin: 10px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .check-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .check-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .reset-btn {
+            background: #764ba2;
+            color: white;
+        }
+        
+        .reset-btn:hover {
+            background: #653a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+        
+        .result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            min-height: 30px;
+        }
+        
+        .result.success {
+            color: #228B22;
+        }
+        
+        .result.error {
+            color: #DC143C;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 Кроссворд: Анатомия человека</h1>
+        
+        <div class="crossword-grid" id="crosswordGrid"></div>
+        
+        <div class="clues">
+            <div class="clues-column">
+                <h3>По горизонтали</h3>
+                <div class="clue"><strong>1.</strong> Мышечный орган, перекачивающий кровь (6 букв)</div>
+                <div class="clue"><strong>4.</strong> Орган пищеварения в виде мешка (7 букв)</div>
+                <div class="clue"><strong>6.</strong> Длинная трубка пищеварительной системы (9 букв)</div>
+                <div class="clue"><strong>8.</strong> Основа скелета человека (11 букв)</div>
+                <div class="clue"><strong>9.</strong> Совокупность костей организма (6 букв)</div>
+            </div>
+            
+            <div class="clues-column">
+                <h3>По вертикали</h3>
+                <div class="clue"><strong>2.</strong> Самая большая железа организма (6 букв)</div>
+                <div class="clue"><strong>3.</strong> Главный орган нервной системы (4 буквы)</div>
+                <div class="clue"><strong>5.</strong> Орган мочевыделительной системы (5 букв)</div>
+                <div class="clue"><strong>7.</strong> Орган дыхания (6 букв)</div>
+                <div class="clue"><strong>10.</strong> Орган, способный сокращаться (5 букв)</div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button class="check-btn" onclick="checkAnswers()">✓ Проверить</button>
+            <button class="reset-btn" onclick="resetCrossword()">↺ Очистить</button>
+        </div>
+        
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // Структура кроссворда
+        const crosswordData = {
+            words: [
+                { id: 1, word: "СЕРДЦЕ", direction: "horizontal", row: 0, col: 0, clue: "Мышечный орган, перекачивающий кровь" },
+                { id: 2, word: "ПЕЧЕНЬ", direction: "vertical", row: 0, col: 2, clue: "Самая большая железа организма" },
+                { id: 3, word: "МОЗГ", direction: "vertical", row: 0, col: 5, clue: "Главный орган нервной системы" },
+                { id: 4, word: "ЖЕЛУДОК", direction: "horizontal", row: 3, col: 0, clue: "Орган пищеварения в виде мешка" },
+                { id: 5, word: "ПОЧКА", direction: "vertical", row: 3, col: 4, clue: "Орган мочевыделительной системы" },
+                { id: 6, word: "КИШЕЧНИК", direction: "horizontal", row: 6, col: 0, clue: "Длинная трубка пищеварительной системы" },
+                { id: 7, word: "ЛЁГКОЕ", direction: "vertical", row: 6, col: 3, clue: "Орган дыхания" },
+                { id: 8, word: "ПОЗВОНОЧНИК", direction: "horizontal", row: 9, col: 0, clue: "Основа скелета человека" },
+                { id: 9, word: "СКЕЛЕТ", direction: "horizontal", row: 12, col: 0, clue: "Совокупность костей организма" },
+                { id: 10, word: "МЫШЦА", direction: "vertical", row: 9, col: 7, clue: "Орган, способный сокращаться" }
+            ],
+            rows: 15,
+            cols: 12
+        };
+
+        // Создание сетки кроссворда
+        function createGrid() {
+            const grid = document.getElementById('crosswordGrid');
+            grid.style.gridTemplateColumns = `repeat(${crosswordData.cols}, 40px)`;
+            
+            // Создаём матрицу для отслеживания ячеек
+            const matrix = Array(crosswordData.rows).fill(null).map(() => 
+                Array(crosswordData.cols).fill(null)
+            );
+            
+            // Заполняем матрицу словами
+            crosswordData.words.forEach(wordData => {
+                const { word, direction, row, col, id } = wordData;
+                for (let i = 0; i < word.length; i++) {
+                    const r = direction === "horizontal" ? row : row + i;
+                    const c = direction === "horizontal" ? col + i : col;
+                    
+                    if (!matrix[r][c]) {
+                        matrix[r][c] = { numbers: [], letter: word[i] };
+                    }
+                    
+                    if (i === 0) {
+                        matrix[r][c].numbers.push(id);
+                    }
+                }
+            });
+            
+            // Создаём ячейки
+            for (let r = 0; r < crosswordData.rows; r++) {
+                for (let c = 0; c < crosswordData.cols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    
+                    if (matrix[r][c]) {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.maxLength = 1;
+                        input.dataset.row = r;
+                        input.dataset.col = c;
+                        input.dataset.correct = matrix[r][c].letter;
+                        input.addEventListener('input', handleInput);
+                        input.addEventListener('keydown', handleKeydown);
+                        cell.appendChild(input);
+                        
+                        if (matrix[r][c].numbers.length > 0) {
+                            const number = document.createElement('div');
+                            number.className = 'number';
+                            number.textContent = matrix[r][c].numbers[0];
+                            cell.appendChild(number);
+                        }
+                    } else {
+                        cell.classList.add('black');
+                    }
+                    
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        // Обработка ввода
+        function handleInput(e) {
+            const input = e.target;
+            input.value = input.value.toUpperCase();
+            
+            if (input.value) {
+                moveToNext(input);
+            }
+        }
+
+        // Переход к следующей ячейке
+        function moveToNext(currentInput) {
+            const row = parseInt(currentInput.dataset.row);
+            const col = parseInt(currentInput.dataset.col);
+            
+            // Ищем следующую ячейку справа или снизу
+            const allInputs = document.querySelectorAll('.cell input');
+            let found = false;
+            
+            for (let input of allInputs) {
+                const r = parseInt(input.dataset.row);
+                const c = parseInt(input.dataset.col);
+                
+                if ((r === row && c === col + 1) || (r === row + 1 && c === col)) {
+                    input.focus();
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        // Обработка клавиш
+        function handleKeydown(e) {
+            const input = e.target;
+            const row = parseInt(input.dataset.row);
+            const col = parseInt(input.dataset.col);
+            
+            if (e.key === 'Backspace' && !input.value) {
+                // Переход к предыдущей ячейке
+                const allInputs = document.querySelectorAll('.cell input');
+                for (let i = 0; i < allInputs.length; i++) {
+                    const r = parseInt(allInputs[i].dataset.row);
+                    const c = parseInt(allInputs[i].dataset.col);
+                    
+                    if ((r === row && c === col - 1) || (r === row - 1 && c === col)) {
+                        allInputs[i].focus();
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Проверка ответов
+        function checkAnswers() {
+            const inputs = document.querySelectorAll('.cell input');
+            let allCorrect = true;
+            let filledCount = 0;
+            
+            inputs.forEach(input => {
+                const userValue = input.value.toUpperCase();
+                const correctValue = input.dataset.correct;
+                
+                if (userValue) {
+                    filledCount++;
+                    if (userValue === correctValue) {
+                        input.classList.add('correct');
+                        input.classList.remove('incorrect');
+                    } else {
+                        input.classList.add('incorrect');
+                        input.classList.remove('correct');
+                        allCorrect = false;
+                    }
+                } else {
+                    input.classList.remove('correct', 'incorrect');
+                    allCorrect = false;
+                }
+            });
+            
+            const resultDiv = document.getElementById('result');
+            
+            if (allCorrect && filledCount === inputs.length) {
+                resultDiv.textContent = '🎉 Поздравляем! Кроссворд разгадан правильно!';
+                resultDiv.className = 'result success';
+            } else {
+                const correctCount = document.querySelectorAll('.cell input.correct').length;
+                resultDiv.textContent = `Правильно заполнено: ${correctCount} из ${inputs.length} клеток`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Очистка кроссворда
+        function resetCrossword() {
+            const inputs = document.querySelectorAll('.cell input');
+            inputs.forEach(input => {
+                input.value = '';
+                input.classList.remove('correct', 'incorrect');
+            });
+            document.getElementById('result').textContent = '';
+        }
+
+        // Инициализация
+        createGrid();
+    </script>
+</body>
+</html>
